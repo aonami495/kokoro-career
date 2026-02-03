@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>管理画面 | ココロキャリア</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+    <%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
+    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+  </head>
+
+  <body class="bg-gray-100">
+    <div class="min-h-screen flex" data-controller="sidebar">
+      <!-- サイドバー（初期状態: 非表示） -->
+      <aside class="w-64 bg-slate-800 text-white fixed h-full transition-transform duration-300 z-40 -translate-x-full"
+             data-sidebar-target="menu">
+        <div class="p-4 border-b border-slate-700">
+          <div class="flex items-center gap-2">
+            <span class="text-xl">🔧</span>
+            <span class="font-bold">管理画面</span>
+          </div>
+          <p class="text-xs text-slate-400 mt-1">ココロキャリア</p>
+        </div>
+
+        <nav class="p-4">
+          <ul class="space-y-2">
+            <li>
+              <%= link_to admin_dashboard_path, class: "flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-slate-700 transition #{controller_name == 'dashboards' ? 'bg-slate-700' : ''}" do %>
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+                </svg>
+                <span>ダッシュボード</span>
+              <% end %>
+            </li>
+            <li>
+              <%= link_to admin_accommodation_tags_path, class: "flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-slate-700 transition #{controller_name == 'accommodation_tags' ? 'bg-slate-700' : ''}" do %>
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
+                </svg>
+                <span>配慮タグ管理</span>
+              <% end %>
+            </li>
+            <li>
+              <%= link_to admin_users_path, class: "flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-slate-700 transition #{controller_name == 'users' ? 'bg-slate-700' : ''}" do %>
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                </svg>
+                <span>ユーザー管理</span>
+              <% end %>
+            </li>
+            <li>
+              <%= link_to admin_jobs_path, class: "flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-slate-700 transition #{controller_name == 'jobs' ? 'bg-slate-700' : ''}" do %>
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                </svg>
+                <span>求人管理</span>
+              <% end %>
+            </li>
+            <li>
+              <% pending_reports_count = Report.pending.count %>
+              <%= link_to admin_reports_path, class: "flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-slate-700 transition #{controller_name == 'reports' ? 'bg-slate-700' : ''}" do %>
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                </svg>
+                <span>通報管理</span>
+                <% if pending_reports_count > 0 %>
+                  <span class="ml-auto bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                    <%= pending_reports_count %>
+                  </span>
+                <% end %>
+              <% end %>
+            </li>
+          </ul>
+
+          <div class="mt-8 pt-4 border-t border-slate-700">
+            <ul class="space-y-2">
+              <li>
+                <%= link_to root_path, class: "flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-slate-700 transition text-slate-400" do %>
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                  </svg>
+                  <span>サイトに戻る</span>
+                <% end %>
+              </li>
+              <li>
+                <%= button_to destroy_user_session_path, method: :delete, class: "w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-slate-700 transition text-slate-400" do %>
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                  </svg>
+                  <span>ログアウト</span>
+                <% end %>
+              </li>
+            </ul>
+          </div>
+        </nav>
+
+        <!-- 管理者情報 -->
+        <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-slate-700 bg-slate-900">
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 bg-indigo-500 rounded-full flex items-center justify-center text-sm font-bold">
+              <%= current_user.name.first %>
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-sm font-medium truncate"><%= current_user.name %></p>
+              <p class="text-xs text-slate-400">管理者</p>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- メインコンテンツ（初期状態: 全幅） -->
+      <main class="flex-1 ml-0 transition-all duration-300" data-sidebar-target="content">
+        <!-- ヘッダー -->
+        <header class="bg-white shadow-sm px-6 py-4 flex items-center">
+          <!-- トグルボタン -->
+          <button data-action="click->sidebar#toggle" class="p-2 mr-2 text-gray-500 rounded hover:bg-gray-100 focus:outline-none focus:bg-gray-100">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+            </svg>
+          </button>
+
+          <h1 class="text-xl font-semibold text-gray-800">
+            <%= content_for?(:page_title) ? yield(:page_title) : "管理画面" %>
+          </h1>
+        </header>
+
+        <!-- フラッシュメッセージ -->
+        <% flash.each do |key, value| %>
+          <% if value.is_a?(String) %>
+            <div class="mx-6 mt-4">
+              <div class="px-4 py-3 rounded relative border <%= key == 'notice' ? 'bg-green-100 border-green-400 text-green-700' : 'bg-red-100 border-red-400 text-red-700' %>">
+                <%= value %>
+              </div>
+            </div>
+          <% end %>
+        <% end %>
+
+        <!-- コンテンツ -->
+        <div class="p-6">
+          <%= yield %>
+        </div>
+      </main>
+    </div>
+  </body>
+</html>

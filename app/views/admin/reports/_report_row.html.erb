@@ -1,0 +1,68 @@
+<div class="px-6 py-4 hover:bg-gray-50">
+  <div class="flex items-start justify-between gap-4">
+    <div class="flex-1">
+      <!-- 通報対象 -->
+      <div class="flex items-center gap-2 mb-2">
+        <span class="px-2 py-1 text-xs font-medium rounded-full
+          <%= case report.status
+              when 'pending' then 'bg-red-100 text-red-700'
+              when 'resolved' then 'bg-green-100 text-green-700'
+              when 'ignored' then 'bg-gray-100 text-gray-700'
+              end %>">
+          <%= report.status_label %>
+        </span>
+        <span class="px-2 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-700">
+          <%= report.reason_label %>
+        </span>
+      </div>
+
+      <!-- 通報対象の情報 -->
+      <p class="font-medium text-gray-900 mb-1">
+        <% if report.target.present? %>
+          <% case report.target %>
+          <% when Job %>
+            <span class="text-green-600">求人:</span>
+            <%= link_to report.target.title, job_path(report.target), class: "hover:underline", target: "_blank" %>
+            <span class="text-sm text-gray-500">(<%= report.target.company&.company_name %>)</span>
+          <% when User %>
+            <span class="text-blue-600">ユーザー:</span>
+            <%= report.target.name %>
+            <span class="text-sm text-gray-500">(<%= report.target.email %>)</span>
+          <% end %>
+        <% else %>
+          <span class="text-gray-400">削除済み</span>
+        <% end %>
+      </p>
+
+      <!-- 通報詳細 -->
+      <% if report.description.present? %>
+        <p class="text-sm text-gray-600 mb-2 line-clamp-2"><%= report.description %></p>
+      <% end %>
+
+      <!-- 通報者・日時 -->
+      <p class="text-xs text-gray-500">
+        通報者: <%= report.reporter&.name || "不明" %> |
+        <%= report.created_at.strftime("%Y/%m/%d %H:%M") %>
+      </p>
+    </div>
+
+    <!-- アクションボタン -->
+    <div class="flex flex-col gap-2">
+      <% if report.pending? %>
+        <%= button_to "対応済み", update_status_admin_report_path(report, status: "resolved"),
+            method: :patch,
+            class: "px-3 py-1 text-xs font-medium text-white bg-green-600 rounded hover:bg-green-700" %>
+        <%= button_to "却下", update_status_admin_report_path(report, status: "ignored"),
+            method: :patch,
+            class: "px-3 py-1 text-xs font-medium text-gray-700 bg-gray-200 rounded hover:bg-gray-300" %>
+      <% else %>
+        <%= button_to "未対応に戻す", update_status_admin_report_path(report, status: "pending"),
+            method: :patch,
+            class: "px-3 py-1 text-xs font-medium text-gray-700 bg-gray-200 rounded hover:bg-gray-300" %>
+      <% end %>
+
+      <%= link_to "詳細", admin_report_path(report),
+          class: "px-3 py-1 text-xs font-medium text-indigo-600 bg-indigo-50 rounded hover:bg-indigo-100 text-center" %>
+    </div>
+  </div>
+</div>

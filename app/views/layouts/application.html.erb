@@ -18,9 +18,99 @@
     <%= javascript_importmap_tags %>
   </head>
 
-  <body>
-    <main class="container mx-auto mt-28 px-5 flex">
+  <body class="min-h-screen flex flex-col">
+    <!-- ヘッダー -->
+    <header class="bg-white shadow-sm fixed w-full top-0 z-50">
+      <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+        <%= link_to root_path, class: "flex items-center gap-2" do %>
+          <span class="text-2xl">🤝</span>
+          <span class="text-xl font-bold text-slate-800">ココロキャリア</span>
+        <% end %>
+
+        <nav class="flex items-center gap-4">
+          <%= link_to "求人を探す", jobs_path, class: "text-slate-600 hover:text-teal-600 text-sm" %>
+          <%= link_to "企業向けガイド", enterprise_guide_path, class: "text-slate-600 hover:text-teal-600 text-sm hidden md:inline" %>
+
+          <% if user_signed_in? %>
+            <% if current_user.admin? %>
+              <%= link_to "管理画面", admin_dashboard_path, class: "text-slate-600 hover:text-teal-600 text-sm" %>
+            <% elsif current_user.job_seeker? %>
+              <%= link_to "マイページ", job_seeker_dashboard_path, class: "text-slate-600 hover:text-teal-600 text-sm" %>
+            <% elsif current_user.company? %>
+              <%= link_to "ダッシュボード", company_dashboard_path, class: "text-slate-600 hover:text-teal-600 text-sm" %>
+            <% end %>
+            <%= button_to "ログアウト", destroy_user_session_path, method: :delete,
+                class: "text-slate-500 hover:text-slate-700 text-sm" %>
+          <% else %>
+            <%= link_to "ログイン", new_user_session_path,
+                class: "text-slate-600 hover:text-teal-600 text-sm" %>
+            <%= link_to "新規登録", new_user_registration_path,
+                class: "bg-teal-600 text-white px-4 py-2 rounded-lg hover:bg-teal-700 text-sm" %>
+          <% end %>
+        </nav>
+      </div>
+    </header>
+
+    <!-- メインコンテンツ -->
+    <main class="flex-1 pt-16">
+      <!-- フラッシュメッセージ -->
+      <% flash.each do |key, value| %>
+        <% if value.is_a?(String) %>
+          <div class="max-w-4xl mx-auto px-4 mt-4">
+            <div class="px-4 py-3 rounded relative border <%= key == 'notice' ? 'bg-green-100 border-green-400 text-green-700' : 'bg-red-100 border-red-400 text-red-700' %>">
+              <%= value %>
+            </div>
+          </div>
+        <% end %>
+      <% end %>
+
       <%= yield %>
     </main>
+
+    <!-- フッター -->
+    <footer class="bg-slate-800 text-white py-12">
+      <div class="max-w-6xl mx-auto px-8">
+        <div class="grid md:grid-cols-4 gap-8">
+          <div>
+            <div class="flex items-center gap-2 mb-4">
+              <span class="text-2xl">🤝</span>
+              <span class="text-lg font-bold">ココロキャリア</span>
+            </div>
+            <p class="text-slate-400 text-sm">
+              配慮の可視化で、安心できるマッチングを。
+            </p>
+          </div>
+
+          <div>
+            <h4 class="font-semibold mb-4">求職者の方</h4>
+            <ul class="space-y-2 text-slate-400 text-sm">
+              <li><%= link_to "求人を探す", jobs_path, class: "hover:text-white" %></li>
+              <li><%= link_to "新規登録", new_user_registration_path, class: "hover:text-white" %></li>
+            </ul>
+          </div>
+
+          <div>
+            <h4 class="font-semibold mb-4">企業の方</h4>
+            <ul class="space-y-2 text-slate-400 text-sm">
+              <li><%= link_to "障害者雇用はじめてガイド", enterprise_guide_path, class: "hover:text-white" %></li>
+              <li><%= link_to "企業登録", new_user_registration_path, class: "hover:text-white" %></li>
+            </ul>
+          </div>
+
+          <div>
+            <h4 class="font-semibold mb-4">サポート</h4>
+            <ul class="space-y-2 text-slate-400 text-sm">
+              <li><a href="#" class="hover:text-white">利用規約</a></li>
+              <li><a href="#" class="hover:text-white">プライバシーポリシー</a></li>
+              <li><a href="#" class="hover:text-white">お問い合わせ</a></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="border-t border-slate-700 mt-8 pt-8 text-center text-slate-500 text-sm">
+          <p>&copy; 2026 ココロキャリア All rights reserved.</p>
+        </div>
+      </div>
+    </footer>
   </body>
 </html>

@@ -1,0 +1,196 @@
+<div class="max-w-4xl mx-auto p-8">
+  <!-- パンくずリスト -->
+  <nav class="text-sm text-gray-500 mb-6">
+    <%= link_to "求人一覧", jobs_path, class: "hover:text-teal-600" %>
+    <span class="mx-2">></span>
+    <span class="text-gray-700"><%= @job.title %></span>
+  </nav>
+
+  <!-- メインコンテンツ -->
+  <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+    <!-- ヘッダー -->
+    <div class="p-8 border-b">
+      <div class="flex flex-col md:flex-row md:justify-between md:items-start gap-4">
+        <div class="flex-1">
+          <h1 class="text-3xl font-bold text-gray-900 mb-2"><%= @job.title %></h1>
+          <p class="text-xl text-gray-600 font-medium"><%= @company.company_name %></p>
+        </div>
+
+        <% if @match_score.present? %>
+          <div class="text-center px-6 py-4 rounded-lg <%= match_bg_class(@match_score) %>">
+            <span class="text-5xl font-bold <%= match_text_class(@match_score) %>">
+              <%= @match_score %>%
+            </span>
+            <p class="text-sm text-gray-500 mt-1">マッチ度</p>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+    <!-- 基本情報 -->
+    <div class="p-8 bg-gray-50 border-b">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+        <div>
+          <p class="text-sm text-gray-500 mb-1">勤務地</p>
+          <p class="font-medium">📍 <%= @job.location || "未設定" %></p>
+        </div>
+        <div>
+          <p class="text-sm text-gray-500 mb-1">雇用形態</p>
+          <p class="font-medium">💼 <%= @job.job_type || "未設定" %></p>
+        </div>
+        <div>
+          <p class="text-sm text-gray-500 mb-1">給与</p>
+          <p class="font-medium">💰 <%= format_salary(@job.salary_min, @job.salary_max) %></p>
+        </div>
+        <div>
+          <p class="text-sm text-gray-500 mb-1">体験実習</p>
+          <% if @job.internship_available? %>
+            <p class="font-medium text-orange-700">🎓 受入可能</p>
+          <% else %>
+            <p class="font-medium text-gray-500">−</p>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <!-- 仕事内容 -->
+    <div class="p-8 border-b">
+      <h2 class="text-xl font-semibold mb-4">仕事内容</h2>
+      <div class="prose max-w-none text-gray-700">
+        <%= simple_format(@job.description) if @job.description.present? %>
+        <% if @job.description.blank? %>
+          <p class="text-gray-400">詳細は未設定です</p>
+        <% end %>
+      </div>
+    </div>
+
+    <!-- 提供可能な配慮 -->
+    <div class="p-8 border-b">
+      <h2 class="text-xl font-semibold mb-4">提供可能な配慮</h2>
+      <% if @company.accommodation_tags.any? %>
+        <div class="flex flex-wrap gap-3">
+          <% @company.accommodation_tags.each do |tag| %>
+            <span class="bg-teal-50 text-teal-700 border border-teal-200 px-4 py-2 rounded-full">
+              ✓ <%= tag.name %>
+            </span>
+          <% end %>
+        </div>
+      <% else %>
+        <p class="text-gray-400">配慮タグが未設定です</p>
+      <% end %>
+    </div>
+
+    <!-- 企業情報 -->
+    <div class="p-8 border-b">
+      <h2 class="text-xl font-semibold mb-4">企業情報</h2>
+      <dl class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <dt class="text-sm text-gray-500">会社名</dt>
+          <dd class="font-medium"><%= @company.company_name %></dd>
+        </div>
+        <div>
+          <dt class="text-sm text-gray-500">所在地</dt>
+          <dd class="font-medium"><%= @company.location || "未設定" %></dd>
+        </div>
+        <div>
+          <dt class="text-sm text-gray-500">業種</dt>
+          <dd class="font-medium"><%= @company.industry || "未設定" %></dd>
+        </div>
+        <div>
+          <dt class="text-sm text-gray-500">従業員数</dt>
+          <dd class="font-medium"><%= @company.employee_count ? "#{@company.employee_count}名" : "未設定" %></dd>
+        </div>
+        <% if @company.website_url.present? %>
+          <div class="md:col-span-2">
+            <dt class="text-sm text-gray-500">Webサイト</dt>
+            <dd class="font-medium">
+              <%= link_to @company.website_url, @company.website_url, target: "_blank", rel: "noopener", class: "text-teal-600 hover:underline" %>
+            </dd>
+          </div>
+        <% end %>
+        <% if @company.description.present? %>
+          <div class="md:col-span-2">
+            <dt class="text-sm text-gray-500 mb-1">企業紹介</dt>
+            <dd class="text-gray-700"><%= simple_format(@company.description) %></dd>
+          </div>
+        <% end %>
+      </dl>
+    </div>
+
+    <!-- 応募セクション -->
+    <div class="p-8 bg-gradient-to-r from-teal-50 to-cyan-50">
+      <% if user_signed_in? && current_user.job_seeker? %>
+        <% if @application.present? %>
+          <!-- 応募済み -->
+          <div class="text-center">
+            <div class="inline-flex items-center gap-2 bg-gray-100 text-gray-600 px-6 py-3 rounded-lg">
+              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+              </svg>
+              <span class="font-semibold">応募済み</span>
+            </div>
+            <p class="text-sm text-gray-500 mt-2">
+              応募日: <%= @application.created_at.strftime("%Y年%m月%d日") %>
+              <% if @application.accepted? %>
+                <span class="ml-2 text-green-600 font-medium">（承認済み）</span>
+              <% elsif @application.rejected? %>
+                <span class="ml-2 text-red-600 font-medium">（見送り）</span>
+              <% else %>
+                <span class="ml-2 text-orange-600 font-medium">（選考中）</span>
+              <% end %>
+            </p>
+          </div>
+        <% else %>
+          <!-- 応募フォーム -->
+          <div class="max-w-xl mx-auto">
+            <h3 class="text-xl font-semibold text-center mb-4">この求人に応募する</h3>
+            <%= form_with url: job_applications_path(@job), method: :post, local: true, class: "space-y-4" do |f| %>
+              <div>
+                <label for="application_message" class="block text-sm font-medium text-gray-700 mb-1">
+                  応募メッセージ（任意）
+                </label>
+                <textarea
+                  name="application[message]"
+                  id="application_message"
+                  rows="4"
+                  class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-teal-500 focus:border-teal-500"
+                  placeholder="志望動機や自己PRを入力してください（任意）"
+                ></textarea>
+              </div>
+              <div class="text-center">
+                <button type="submit" class="bg-teal-600 text-white px-8 py-3 rounded-lg hover:bg-teal-700 font-semibold text-lg cursor-pointer transition-colors">
+                  応募する
+                </button>
+              </div>
+            <% end %>
+          </div>
+        <% end %>
+      <% elsif user_signed_in? && current_user.company? %>
+        <!-- 企業ユーザー向け -->
+        <div class="text-center text-gray-500">
+          <p>企業アカウントでは応募できません</p>
+        </div>
+      <% else %>
+        <!-- 未ログイン -->
+        <div class="text-center">
+          <p class="text-gray-600 mb-4">この求人に応募するにはログインが必要です</p>
+          <%= link_to "ログインして応募する", new_user_session_path, class: "bg-teal-600 text-white px-8 py-3 rounded-lg hover:bg-teal-700 font-semibold inline-block" %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- 戻るリンク -->
+  <div class="mt-6 flex justify-between items-center">
+    <%= link_to "← 求人一覧に戻る", jobs_path, class: "text-gray-600 hover:text-teal-600" %>
+
+    <% if user_signed_in? %>
+      <%= link_to new_report_path(target_type: "Job", target_id: @job.id), class: "text-sm text-gray-400 hover:text-red-500 flex items-center gap-1" do %>
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+        </svg>
+        この求人を通報
+      <% end %>
+    <% end %>
+  </div>
+</div>

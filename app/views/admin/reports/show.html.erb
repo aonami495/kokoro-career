@@ -1,0 +1,146 @@
+<% content_for :page_title, "通報詳細" %>
+
+<div class="mb-6">
+  <%= link_to "← 一覧に戻る", admin_reports_path, class: "text-indigo-600 hover:text-indigo-800" %>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+  <!-- 通報情報 -->
+  <div class="bg-white rounded-lg shadow">
+    <div class="px-6 py-4 border-b border-gray-200">
+      <h2 class="text-lg font-semibold text-gray-800">通報情報</h2>
+    </div>
+    <div class="p-6 space-y-4">
+      <div>
+        <p class="text-sm text-gray-500">ステータス</p>
+        <span class="px-3 py-1 text-sm font-medium rounded-full
+          <%= case @report.status
+              when 'pending' then 'bg-red-100 text-red-700'
+              when 'resolved' then 'bg-green-100 text-green-700'
+              when 'ignored' then 'bg-gray-100 text-gray-700'
+              end %>">
+          <%= @report.status_label %>
+        </span>
+      </div>
+
+      <div>
+        <p class="text-sm text-gray-500">通報理由</p>
+        <p class="font-medium text-gray-800"><%= @report.reason_label %></p>
+      </div>
+
+      <div>
+        <p class="text-sm text-gray-500">詳細コメント</p>
+        <p class="text-gray-800"><%= @report.description.presence || "なし" %></p>
+      </div>
+
+      <div>
+        <p class="text-sm text-gray-500">通報者</p>
+        <p class="text-gray-800"><%= @report.reporter&.name %> (<%= @report.reporter&.email %>)</p>
+      </div>
+
+      <div>
+        <p class="text-sm text-gray-500">通報日時</p>
+        <p class="text-gray-800"><%= @report.created_at.strftime("%Y年%m月%d日 %H:%M") %></p>
+      </div>
+
+      <!-- アクションボタン -->
+      <div class="pt-4 border-t flex gap-2">
+        <% if @report.pending? %>
+          <%= button_to "対応済みにする", update_status_admin_report_path(@report, status: "resolved"),
+              method: :patch,
+              class: "px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700" %>
+          <%= button_to "却下する", update_status_admin_report_path(@report, status: "ignored"),
+              method: :patch,
+              class: "px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300" %>
+        <% else %>
+          <%= button_to "未対応に戻す", update_status_admin_report_path(@report, status: "pending"),
+              method: :patch,
+              class: "px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300" %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <!-- 通報対象の詳細 -->
+  <div class="bg-white rounded-lg shadow">
+    <div class="px-6 py-4 border-b border-gray-200">
+      <h2 class="text-lg font-semibold text-gray-800">通報対象</h2>
+    </div>
+    <div class="p-6">
+      <% if @report.target.present? %>
+        <% case @report.target %>
+        <% when Job %>
+          <div class="space-y-4">
+            <div>
+              <p class="text-sm text-gray-500">求人タイトル</p>
+              <p class="font-medium text-gray-800"><%= @report.target.title %></p>
+            </div>
+            <div>
+              <p class="text-sm text-gray-500">企業名</p>
+              <p class="text-gray-800"><%= @report.target.company&.company_name %></p>
+            </div>
+            <div>
+              <p class="text-sm text-gray-500">ステータス</p>
+              <span class="px-2 py-1 text-xs font-medium rounded-full
+                <%= case @report.target.status
+                    when 'published' then 'bg-green-100 text-green-700'
+                    when 'draft' then 'bg-yellow-100 text-yellow-700'
+                    when 'closed' then 'bg-gray-100 text-gray-700'
+                    end %>">
+                <%= @report.target.status %>
+              </span>
+            </div>
+            <div>
+              <p class="text-sm text-gray-500">求人内容</p>
+              <p class="text-gray-800 text-sm whitespace-pre-wrap"><%= @report.target.description %></p>
+            </div>
+            <div class="pt-4 border-t flex gap-2">
+              <%= link_to "求人を見る", job_path(@report.target), class: "px-4 py-2 text-sm font-medium text-indigo-600 bg-indigo-50 rounded-lg hover:bg-indigo-100", target: "_blank" %>
+              <%= button_to "この求人を削除", admin_job_path(@report.target), method: :delete,
+                  data: { turbo_confirm: "この求人を削除しますか？" },
+                  class: "px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700" %>
+            </div>
+          </div>
+
+        <% when User %>
+          <div class="space-y-4">
+            <div>
+              <p class="text-sm text-gray-500">ユーザー名</p>
+              <p class="font-medium text-gray-800"><%= @report.target.name %></p>
+            </div>
+            <div>
+              <p class="text-sm text-gray-500">メールアドレス</p>
+              <p class="text-gray-800"><%= @report.target.email %></p>
+            </div>
+            <div>
+              <p class="text-sm text-gray-500">ユーザータイプ</p>
+              <span class="px-2 py-1 text-xs font-medium rounded-full
+                <%= case @report.target.user_type
+                    when 'job_seeker' then 'bg-blue-100 text-blue-700'
+                    when 'company' then 'bg-green-100 text-green-700'
+                    when 'admin' then 'bg-purple-100 text-purple-700'
+                    end %>">
+                <%= @report.target.user_type %>
+              </span>
+            </div>
+            <div>
+              <p class="text-sm text-gray-500">登録日</p>
+              <p class="text-gray-800"><%= @report.target.created_at.strftime("%Y年%m月%d日") %></p>
+            </div>
+            <div class="pt-4 border-t">
+              <% unless @report.target.admin? %>
+                <%= button_to "このユーザーを削除", admin_user_path(@report.target), method: :delete,
+                    data: { turbo_confirm: "このユーザーを削除しますか？" },
+                    class: "px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700" %>
+              <% else %>
+                <p class="text-sm text-gray-500">管理者ユーザーは削除できません</p>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+      <% else %>
+        <p class="text-gray-500">通報対象は既に削除されています</p>
+      <% end %>
+    </div>
+  </div>
+</div>

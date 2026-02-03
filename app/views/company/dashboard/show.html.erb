@@ -1,0 +1,164 @@
+<div class="max-w-4xl mx-auto p-8">
+  <% if notice %>
+    <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-6">
+      <%= notice %>
+    </div>
+  <% end %>
+
+  <div class="mb-8">
+    <h1 class="text-3xl font-bold">企業ダッシュボード</h1>
+    <p class="text-gray-600 mt-2"><%= current_company.company_name %></p>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+    <!-- 配慮タグ設定カード -->
+    <div class="bg-white rounded-lg shadow p-6">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-xl font-semibold">🤝 提供可能な配慮</h2>
+        <%= link_to "設定", company_accommodations_path,
+            class: "text-teal-600 hover:text-teal-800 font-medium" %>
+      </div>
+      <% if @accommodation_count > 0 %>
+        <p class="text-3xl font-bold text-teal-600"><%= @accommodation_count %><span class="text-lg text-gray-600">件</span></p>
+        <p class="text-sm text-gray-500 mt-2">配慮タグを登録済み</p>
+      <% else %>
+        <p class="text-gray-500 mb-3">まだ登録されていません</p>
+        <%= link_to "配慮タグを設定する", edit_company_accommodations_path,
+            class: "text-teal-600 hover:underline text-sm" %>
+      <% end %>
+    </div>
+
+    <!-- 求人管理カード -->
+    <div class="bg-white rounded-lg shadow p-6">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-xl font-semibold">📋 求人管理</h2>
+        <%= link_to "一覧", company_jobs_path,
+            class: "text-teal-600 hover:text-teal-800 font-medium" %>
+      </div>
+      <p class="text-3xl font-bold text-teal-600"><%= current_company.jobs.count %><span class="text-lg text-gray-600">件</span></p>
+      <p class="text-sm text-gray-500 mt-2">
+        公開中: <%= current_company.jobs.published.count %>件 /
+        下書き: <%= current_company.jobs.draft.count %>件
+      </p>
+      <div class="mt-4">
+        <%= link_to "新規求人を作成", new_company_job_path,
+            class: "bg-teal-600 text-white px-4 py-2 rounded-lg hover:bg-teal-700 inline-block text-sm" %>
+      </div>
+    </div>
+
+    <!-- 応募者カード -->
+    <div class="bg-white rounded-lg shadow p-6">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-xl font-semibold">👥 応募者</h2>
+      </div>
+      <p class="text-3xl font-bold text-teal-600"><%= current_company.applications.count %><span class="text-lg text-gray-600">件</span></p>
+      <p class="text-sm text-gray-500 mt-2">
+        <% if @pending_count > 0 %>
+          <span class="text-orange-600 font-medium">未対応: <%= @pending_count %>件</span>
+        <% else %>
+          すべて対応済み
+        <% end %>
+      </p>
+    </div>
+  </div>
+
+  <!-- 進行中の実習 -->
+  <% if @active_internships.any? %>
+    <div class="bg-purple-50 border border-purple-200 rounded-lg p-6 mb-8">
+      <div class="flex items-center gap-2 mb-4">
+        <span class="text-2xl">🎓</span>
+        <h2 class="text-xl font-semibold text-purple-800">進行中・予定の実習</h2>
+        <span class="bg-purple-500 text-white text-sm font-bold px-2 py-1 rounded-full"><%= @active_internships.count %></span>
+      </div>
+
+      <div class="space-y-3">
+        <% @active_internships.each do |internship| %>
+          <div class="bg-white rounded-lg p-4 border border-purple-200 hover:shadow-md transition-shadow">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="font-medium text-gray-800"><%= internship.job_seeker.user.name %> さん</p>
+                <p class="text-sm text-gray-600"><%= internship.job.title %></p>
+                <p class="text-sm text-gray-500 mt-1">
+                  期間: <%= internship.start_date.strftime("%m/%d") %> 〜 <%= internship.end_date.strftime("%m/%d") %>
+                </p>
+              </div>
+              <div class="flex items-center gap-3">
+                <span class="px-3 py-1 rounded-full text-sm font-medium <%= internship_status_class(internship) %>">
+                  <%= internship_status_label(internship) %>
+                </span>
+                <%= link_to "詳細", internship_path(internship),
+                    class: "bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 text-sm font-medium" %>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <!-- 応募者一覧 -->
+    <div class="bg-white rounded-lg shadow p-6">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-xl font-semibold">最近の応募</h2>
+      </div>
+
+      <% if @applications.empty? %>
+        <p class="text-gray-500 text-center py-4">まだ応募がありません</p>
+      <% else %>
+        <div class="space-y-3">
+          <% @applications.each do |application| %>
+            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+              <div class="flex-1">
+                <p class="font-medium text-gray-800"><%= application.job_seeker.user.name %></p>
+                <p class="text-sm text-gray-500"><%= application.job.title %></p>
+              </div>
+              <div class="flex items-center gap-3">
+                <% match_score = application.job.company.match_score(application.job_seeker) %>
+                <span class="text-sm font-medium <%= match_score >= 70 ? 'text-green-600' : match_score >= 40 ? 'text-yellow-600' : 'text-gray-500' %>">
+                  <%= match_score %>%
+                </span>
+                <span class="px-2 py-1 rounded text-xs font-medium <%= application_status_class(application) %>">
+                  <%= application_status_label(application) %>
+                </span>
+                <%= link_to "メッセージ", application_messages_path(application),
+                    class: "text-teal-600 hover:text-teal-800 text-sm" %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+
+    <!-- 最新の求人 -->
+    <div class="bg-white rounded-lg shadow p-6">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-xl font-semibold">最近の求人</h2>
+        <%= link_to "すべて見る →", company_jobs_path,
+            class: "text-teal-600 hover:text-teal-800 text-sm" %>
+      </div>
+
+      <% if @jobs.empty? %>
+        <p class="text-gray-500 text-center py-4">まだ求人がありません</p>
+      <% else %>
+        <div class="space-y-3">
+          <% @jobs.each do |job| %>
+            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+              <div>
+                <p class="font-medium text-gray-800"><%= job.title %></p>
+                <p class="text-sm text-gray-500"><%= job.location %></p>
+              </div>
+              <div class="flex items-center gap-3">
+                <span class="px-2 py-1 rounded text-xs font-medium <%= job.published? ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600' %>">
+                  <%= job.published? ? '公開中' : '下書き' %>
+                </span>
+                <%= link_to "編集", edit_company_job_path(job),
+                    class: "text-teal-600 hover:text-teal-800 text-sm" %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

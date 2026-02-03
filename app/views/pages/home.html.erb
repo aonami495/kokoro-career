@@ -1,0 +1,175 @@
+<div class="bg-gradient-to-b from-teal-50 to-white">
+  <!-- ヒーローセクション -->
+  <div class="max-w-6xl mx-auto px-8 py-20">
+    <div class="text-center">
+      <h1 class="text-4xl md:text-5xl font-bold text-slate-800 mb-6">
+        配慮の可視化で、<br>
+        <span class="text-teal-600">安心できるマッチング</span>を
+      </h1>
+      <p class="text-xl text-slate-600 mb-8 max-w-2xl mx-auto">
+        ココロキャリアは、企業が提供できる「配慮」と<br class="hidden md:block">
+        求職者が必要とする「配慮」をマッチングする<br class="hidden md:block">
+        障害者就労支援プラットフォームです。
+      </p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <%= link_to "求人を探す", jobs_path,
+            class: "bg-teal-600 text-white px-8 py-4 rounded-lg font-semibold text-lg hover:bg-teal-700 transition-colors" %>
+        <%= link_to "企業の方はこちら", enterprise_guide_path,
+            class: "border-2 border-teal-600 text-teal-600 px-8 py-4 rounded-lg font-semibold text-lg hover:bg-teal-50 transition-colors" %>
+      </div>
+    </div>
+  </div>
+
+  <!-- 特徴セクション -->
+  <div class="bg-white py-20">
+    <div class="max-w-6xl mx-auto px-8">
+      <h2 class="text-3xl font-bold text-center text-slate-800 mb-12">3つの特徴</h2>
+
+      <div class="grid md:grid-cols-3 gap-8">
+        <!-- 特徴1 -->
+        <div class="text-center p-6">
+          <div class="w-20 h-20 bg-teal-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <span class="text-4xl">🏷️</span>
+          </div>
+          <h3 class="text-xl font-semibold text-slate-800 mb-3">配慮タグでマッチング</h3>
+          <p class="text-slate-600">
+            「静かな環境」「時短勤務可」「指示は文書で」など、
+            具体的な配慮内容をタグ化。曖昧な「合理的配慮」を可視化します。
+          </p>
+        </div>
+
+        <!-- 特徴2 -->
+        <div class="text-center p-6">
+          <div class="w-20 h-20 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <span class="text-4xl">🎓</span>
+          </div>
+          <h3 class="text-xl font-semibold text-slate-800 mb-3">体験実習で相性確認</h3>
+          <p class="text-slate-600">
+            いきなり正式雇用ではなく、1〜2週間の体験実習からスタート。
+            お互いの相性を確認してから採用を決められます。
+          </p>
+        </div>
+
+        <!-- 特徴3 -->
+        <div class="text-center p-6">
+          <div class="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <span class="text-4xl">💬</span>
+          </div>
+          <h3 class="text-xl font-semibold text-slate-800 mb-3">安心のコミュニケーション</h3>
+          <p class="text-slate-600">
+            応募から採用まで、メッセージ機能でスムーズにやり取り。
+            実習中は日報で進捗を共有できます。
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 数字セクション -->
+  <div class="bg-slate-800 text-white py-16">
+    <div class="max-w-6xl mx-auto px-8">
+      <div class="grid md:grid-cols-3 gap-8 text-center">
+        <div>
+          <p class="text-5xl font-bold text-teal-400"><%= @published_jobs_count || 0 %></p>
+          <p class="text-slate-300 mt-2">掲載求人数</p>
+        </div>
+        <div>
+          <p class="text-5xl font-bold text-teal-400"><%= @companies_count || 0 %></p>
+          <p class="text-slate-300 mt-2">登録企業数</p>
+        </div>
+        <div>
+          <p class="text-5xl font-bold text-teal-400">90%</p>
+          <p class="text-slate-300 mt-2">マッチング精度</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 求職者向けセクション -->
+  <div class="py-20">
+    <div class="max-w-6xl mx-auto px-8">
+      <div class="grid md:grid-cols-2 gap-12 items-center">
+        <div>
+          <p class="text-teal-600 font-semibold mb-2">FOR JOB SEEKERS</p>
+          <h2 class="text-3xl font-bold text-slate-800 mb-6">求職者の方へ</h2>
+          <ul class="space-y-4 text-slate-600">
+            <li class="flex items-start gap-3">
+              <span class="text-teal-600 text-xl">✓</span>
+              <span>自分に必要な配慮を選ぶだけで、マッチする企業が見つかる</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="text-teal-600 text-xl">✓</span>
+              <span>体験実習で職場の雰囲気を事前に確認できる</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="text-teal-600 text-xl">✓</span>
+              <span>企業との直接やり取りで、不安を解消してから応募できる</span>
+            </li>
+          </ul>
+          <div class="mt-8">
+            <%= link_to "求人を探す →", jobs_path,
+                class: "text-teal-600 font-semibold hover:text-teal-800" %>
+          </div>
+        </div>
+        <div class="bg-gradient-to-br from-teal-100 to-teal-200 rounded-2xl p-8 text-center">
+          <p class="text-6xl mb-4">👤</p>
+          <p class="text-slate-700 font-medium">あなたに合った職場が<br>きっと見つかります</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 企業向けセクション -->
+  <div class="bg-slate-50 py-20">
+    <div class="max-w-6xl mx-auto px-8">
+      <div class="grid md:grid-cols-2 gap-12 items-center">
+        <div class="bg-gradient-to-br from-slate-700 to-slate-800 rounded-2xl p-8 text-center order-2 md:order-1">
+          <p class="text-6xl mb-4">🏢</p>
+          <p class="text-white font-medium">はじめての障害者雇用も<br>安心してスタートできます</p>
+        </div>
+        <div class="order-1 md:order-2">
+          <p class="text-slate-500 font-semibold mb-2">FOR COMPANIES</p>
+          <h2 class="text-3xl font-bold text-slate-800 mb-6">企業の方へ</h2>
+          <ul class="space-y-4 text-slate-600">
+            <li class="flex items-start gap-3">
+              <span class="text-teal-600 text-xl">✓</span>
+              <span>配慮タグを選ぶだけで、適切な人材とマッチング</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="text-teal-600 text-xl">✓</span>
+              <span>体験実習で採用前に業務適性を確認できる</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="text-teal-600 text-xl">✓</span>
+              <span>法定雇用率の達成に向けて、計画的な採用が可能</span>
+            </li>
+          </ul>
+          <div class="mt-8">
+            <%= link_to "障害者雇用はじめてガイド →", enterprise_guide_path,
+                class: "text-teal-600 font-semibold hover:text-teal-800" %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CTA（未ログインユーザーのみ表示） -->
+  <% unless user_signed_in? %>
+    <div class="bg-gradient-to-r from-teal-600 to-teal-700 py-16">
+      <div class="max-w-4xl mx-auto px-8 text-center">
+        <h2 class="text-2xl md:text-3xl font-bold text-white mb-4">
+          今すぐ始めましょう
+        </h2>
+        <p class="text-teal-100 mb-8">
+          アカウント登録は無料。求職者も企業も、すべての機能をお使いいただけます。
+        </p>
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+          <%= link_to "アカウントを作成", new_user_registration_path,
+              class: "bg-white text-teal-700 px-8 py-4 rounded-lg font-semibold text-lg hover:bg-teal-50 transition-colors" %>
+          <%= link_to "ログイン", new_user_session_path,
+              class: "border-2 border-white text-white px-8 py-4 rounded-lg font-semibold text-lg hover:bg-teal-500 transition-colors" %>
+        </div>
+      </div>
+    </div>
+  <% end %>
+</div>

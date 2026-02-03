@@ -1,0 +1,151 @@
+<div class="max-w-7xl mx-auto p-8">
+  <h1 class="text-3xl font-bold mb-2">求人を探す</h1>
+  <p class="text-gray-600 mb-8">あなたに合った求人を配慮タグで検索できます</p>
+
+  <div class="flex flex-col lg:flex-row gap-8">
+    <!-- サイドバー: フィルター -->
+    <div class="lg:w-80 flex-shrink-0">
+      <div class="bg-white rounded-lg shadow p-6 sticky top-4">
+        <h2 class="text-xl font-semibold mb-4">絞り込み検索</h2>
+
+        <%= form_with url: jobs_path, method: :get, local: true, class: "space-y-6" do |f| %>
+          <!-- 体験実習可フィルター -->
+          <div class="pb-4 border-b">
+            <label class="flex items-center cursor-pointer">
+              <%= check_box_tag :internship_only, "1", params[:internship_only] == "1",
+                  class: "mr-2 text-orange-600 focus:ring-orange-500 h-5 w-5" %>
+              <span class="font-medium text-orange-700">🎓 体験実習可のみ</span>
+            </label>
+          </div>
+
+          <!-- 配慮タグフィルター -->
+          <div>
+            <h3 class="font-semibold mb-3">配慮タグで絞り込む</h3>
+            <p class="text-sm text-gray-500 mb-4">選択したタグを提供する企業を表示</p>
+
+            <% @tags_by_category.each do |category, tags| %>
+              <details class="mb-4" <%= 'open' if selected_tags_in_category?(category, tags) %>>
+                <summary class="cursor-pointer font-medium text-gray-700 hover:text-teal-600 py-2">
+                  <%= category_name(category) %>
+                  <span class="text-sm text-gray-400">(<%= tags.size %>)</span>
+                </summary>
+                <div class="pl-4 pt-2 space-y-2">
+                  <% tags.each do |tag| %>
+                    <label class="flex items-start cursor-pointer">
+                      <%= check_box_tag "accommodation_tag_ids[]", tag.id,
+                          params[:accommodation_tag_ids]&.include?(tag.id.to_s),
+                          class: "mt-1 mr-2 text-teal-600 focus:ring-teal-500" %>
+                      <span class="text-sm text-gray-700"><%= tag.name %></span>
+                    </label>
+                  <% end %>
+                </div>
+              </details>
+            <% end %>
+          </div>
+
+          <div class="pt-4">
+            <%= f.submit "検索する",
+                class: "w-full bg-teal-600 text-white py-2 px-4 rounded-lg hover:bg-teal-700 font-semibold cursor-pointer" %>
+          </div>
+
+          <% if params[:accommodation_tag_ids].present? || params[:internship_only].present? %>
+            <div class="text-center">
+              <%= link_to "フィルターをクリア", jobs_path,
+                  class: "text-sm text-gray-500 hover:text-gray-700" %>
+            </div>
+          <% end %>
+        <% end %>
+      </div>
+    </div>
+
+    <!-- メインコンテンツ: 求人一覧 -->
+    <div class="flex-1">
+      <div class="flex justify-between items-center mb-6">
+        <p class="text-gray-600">
+          <strong><%= @jobs_with_score.size %></strong>件の求人が見つかりました
+        </p>
+        <% if current_user&.job_seeker? %>
+          <span class="text-sm text-teal-600">✓ マッチ度順に表示中</span>
+        <% end %>
+      </div>
+
+      <% if @jobs_with_score.empty? %>
+        <div class="bg-gray-50 rounded-lg p-12 text-center">
+          <p class="text-gray-500 mb-4">条件に合う求人が見つかりませんでした</p>
+          <%= link_to "フィルターをクリアして検索", jobs_path,
+              class: "text-teal-600 hover:underline" %>
+        </div>
+      <% else %>
+        <div class="space-y-6">
+          <% @jobs_with_score.each do |item| %>
+            <% job = item[:job] %>
+            <% score = item[:score] %>
+
+            <div class="bg-white rounded-lg shadow-lg p-6 border-l-4 <%= match_border_class(score) %> hover:shadow-xl transition-shadow">
+              <div class="flex flex-col md:flex-row md:justify-between md:items-start gap-4 mb-4">
+                <div class="flex-1">
+                  <h2 class="text-2xl font-semibold text-gray-900 mb-1">
+                    <%= link_to job.title, job_path(job), class: "hover:text-teal-600" %>
+                  </h2>
+                  <p class="text-gray-600 font-medium"><%= job.company.company_name %></p>
+                </div>
+
+                <% if score.present? %>
+                  <div class="text-center px-4 py-2 rounded-lg <%= match_bg_class(score) %>">
+                    <span class="text-4xl font-bold <%= match_text_class(score) %>">
+                      <%= score %>%
+                    </span>
+                    <p class="text-sm text-gray-500">マッチ度</p>
+                  </div>
+                <% end %>
+              </div>
+
+              <!-- 求人情報 -->
+              <div class="flex flex-wrap items-center gap-3 text-sm text-gray-600 mb-4">
+                <span class="flex items-center gap-1">
+                  📍 <%= job.location || "勤務地未設定" %>
+                </span>
+                <span class="flex items-center gap-1">
+                  💼 <%= job.job_type || "雇用形態未設定" %>
+                </span>
+                <span class="flex items-center gap-1">
+                  💰 <%= format_salary(job.salary_min, job.salary_max) %>
+                </span>
+                <% if job.internship_available? %>
+                  <span class="bg-orange-100 text-orange-700 px-2 py-1 rounded font-medium">
+                    🎓 実習可
+                  </span>
+                <% end %>
+              </div>
+
+              <!-- 提供可能な配慮タグ（最大6個表示） -->
+              <% if job.company.accommodation_tags.any? %>
+                <div class="mb-4">
+                  <p class="text-sm text-gray-500 mb-2">提供可能な配慮:</p>
+                  <div class="flex flex-wrap gap-2">
+                    <% job.company.accommodation_tags.limit(6).each do |tag| %>
+                      <span class="bg-teal-50 text-teal-700 border border-teal-200 px-3 py-1 rounded-full text-sm">
+                        ✓ <%= tag.name %>
+                      </span>
+                    <% end %>
+                    <% if job.company.accommodation_tags.size > 6 %>
+                      <span class="text-gray-500 text-sm py-1">
+                        他<%= job.company.accommodation_tags.size - 6 %>件
+                      </span>
+                    <% end %>
+                  </div>
+                </div>
+              <% end %>
+
+              <!-- アクションボタン -->
+              <div class="flex justify-end pt-4 border-t">
+                <%= link_to "詳細を見る →", job_path(job),
+                    class: "bg-teal-600 text-white px-6 py-2 rounded-lg hover:bg-teal-700 font-medium" %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

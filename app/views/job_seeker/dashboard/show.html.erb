@@ -1,0 +1,150 @@
+<div class="max-w-4xl mx-auto p-8">
+  <% if notice %>
+    <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-6">
+      <%= notice %>
+    </div>
+  <% end %>
+
+  <div class="mb-8">
+    <h1 class="text-3xl font-bold">マイページ</h1>
+    <p class="text-gray-600 mt-2"><%= current_user.name %> さん</p>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+    <!-- 配慮タグ設定カード -->
+    <div class="bg-white rounded-lg shadow p-6">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-xl font-semibold">🤝 必要な配慮</h2>
+        <%= link_to "設定", job_seeker_accommodations_path,
+            class: "text-teal-600 hover:text-teal-800 font-medium" %>
+      </div>
+      <% if @accommodation_count > 0 %>
+        <p class="text-3xl font-bold text-teal-600"><%= @accommodation_count %><span class="text-lg text-gray-600">件</span></p>
+        <p class="text-sm text-gray-500 mt-2">配慮タグを登録済み</p>
+      <% else %>
+        <p class="text-gray-500 mb-3">まだ登録されていません</p>
+        <%= link_to "配慮タグを設定する", edit_job_seeker_accommodations_path,
+            class: "text-teal-600 hover:underline text-sm" %>
+      <% end %>
+    </div>
+
+    <!-- 応募状況カード -->
+    <div class="bg-white rounded-lg shadow p-6">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-xl font-semibold">📋 応募状況</h2>
+      </div>
+      <p class="text-3xl font-bold text-teal-600"><%= @applications.count %><span class="text-lg text-gray-600">件</span></p>
+      <p class="text-sm text-gray-500 mt-2">
+        選考中: <%= @applications.pending.count %>件 /
+        承認: <%= @applications.accepted.count %>件
+      </p>
+      <div class="mt-4">
+        <%= link_to "求人を探す", jobs_path,
+            class: "bg-teal-600 text-white px-4 py-2 rounded-lg hover:bg-teal-700 inline-block text-sm" %>
+      </div>
+    </div>
+  </div>
+
+  <!-- 回答待ちの実習オファー -->
+  <% if @pending_internships.any? %>
+    <div class="bg-orange-50 border-2 border-orange-300 rounded-lg p-6 mb-8">
+      <div class="flex items-center gap-2 mb-4">
+        <span class="text-2xl">🎓</span>
+        <h2 class="text-xl font-semibold text-orange-800">実習オファーが届いています！</h2>
+        <span class="bg-orange-500 text-white text-sm font-bold px-2 py-1 rounded-full"><%= @pending_internships.count %></span>
+      </div>
+
+      <div class="space-y-4">
+        <% @pending_internships.each do |internship| %>
+          <div class="bg-white rounded-lg p-4 border border-orange-200">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="font-medium text-gray-800"><%= internship.company.company_name %></p>
+                <p class="text-sm text-gray-600"><%= internship.job.title %></p>
+                <p class="text-sm text-gray-500 mt-1">
+                  期間: <%= internship.start_date.strftime("%Y/%m/%d") %> 〜 <%= internship.end_date.strftime("%Y/%m/%d") %>
+                  （<%= internship.duration_days %>日間）
+                </p>
+              </div>
+              <div class="flex gap-2">
+                <%= link_to "詳細を見る", application_messages_path(internship.application),
+                    class: "bg-teal-600 text-white px-4 py-2 rounded-lg hover:bg-teal-700 text-sm font-medium" %>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- 確定済み・進行中の実習 -->
+  <% if @active_internships.any? %>
+    <div class="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8">
+      <div class="flex items-center gap-2 mb-4">
+        <span class="text-2xl">📅</span>
+        <h2 class="text-xl font-semibold text-blue-800">予定されている実習</h2>
+      </div>
+
+      <div class="space-y-4">
+        <% @active_internships.each do |internship| %>
+          <div class="bg-white rounded-lg p-4 border border-blue-200 hover:shadow-md transition-shadow">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="font-medium text-gray-800"><%= internship.company.company_name %></p>
+                <p class="text-sm text-gray-600"><%= internship.job.title %></p>
+                <p class="text-sm text-gray-500 mt-1">
+                  期間: <%= internship.start_date.strftime("%Y/%m/%d") %> 〜 <%= internship.end_date.strftime("%Y/%m/%d") %>
+                </p>
+              </div>
+              <div class="flex items-center gap-3">
+                <span class="px-3 py-1 rounded-full text-sm font-medium <%= internship_status_class(internship) %>">
+                  <%= internship_status_label(internship) %>
+                </span>
+                <%= link_to "詳細", internship_path(internship),
+                    class: "bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 text-sm font-medium" %>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- 応募一覧 -->
+  <div class="bg-white rounded-lg shadow p-6">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-xl font-semibold">応募した求人</h2>
+    </div>
+
+    <% if @applications.empty? %>
+      <div class="text-center py-8">
+        <p class="text-gray-500 mb-4">まだ応募した求人がありません</p>
+        <%= link_to "求人を探す", jobs_path,
+            class: "text-teal-600 hover:underline" %>
+      </div>
+    <% else %>
+      <div class="space-y-4">
+        <% @applications.each do |application| %>
+          <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+            <div class="flex-1">
+              <p class="font-medium text-gray-800">
+                <%= link_to application.job.title, job_path(application.job), class: "hover:text-teal-600" %>
+              </p>
+              <p class="text-sm text-gray-500"><%= application.job.company.company_name %></p>
+              <p class="text-xs text-gray-400 mt-1">
+                応募日: <%= application.created_at.strftime("%Y/%m/%d") %>
+              </p>
+            </div>
+            <div class="flex items-center gap-3">
+              <span class="px-3 py-1 rounded-full text-sm font-medium <%= application_status_class(application) %>">
+                <%= application_status_label(application) %>
+              </span>
+              <%= link_to "メッセージ", application_messages_path(application),
+                  class: "text-teal-600 hover:text-teal-800 text-sm font-medium" %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+</div>
