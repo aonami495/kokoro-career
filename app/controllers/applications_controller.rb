@@ -19,8 +19,8 @@ class ApplicationsController < ApplicationController
   private
 
   def require_job_seeker
-    unless current_user.job_seeker?
-      redirect_to root_path, alert: "求職者のみ応募できます"
+    unless current_user.job_seeker? && current_user.job_seeker
+      redirect_to root_path, alert: "求職者プロフィールを作成してから応募してください"
     end
   end
 end

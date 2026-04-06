@@ -42,7 +42,7 @@ class JobsController < ApplicationController
     end
 
     # 応募状況を確認
-    if current_user&.job_seeker?
+    if current_user&.job_seeker? && current_user.job_seeker
       @application = current_user.job_seeker.applications.find_by(job: @job)
     end
   end

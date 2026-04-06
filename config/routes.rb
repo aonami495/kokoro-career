@@ -32,6 +32,7 @@ Rails.application.routes.draw do
     get "dashboard", to: "dashboard#show", as: :dashboard
     resource :accommodations, only: [:show, :edit, :update]
     resources :jobs, only: [:index, :new, :create, :edit, :update]
+    resources :applications, only: [:index]
   end
 
   # 管理者用ルーティング

@@ -1,0 +1,45 @@
+<div class="max-w-4xl mx-auto p-8">
+  <div class="flex items-center justify-between mb-6">
+    <h1 class="text-3xl font-bold">応募者一覧</h1>
+    <span class="text-sm text-gray-500">
+      全 <%= @applications.count %>件
+      <% if @pending_count > 0 %>
+        （<span class="text-orange-600 font-medium">未対応: <%= @pending_count %>件</span>）
+      <% end %>
+    </span>
+  </div>
+
+  <% if @applications.empty? %>
+    <div class="bg-white rounded-lg shadow p-12 text-center">
+      <p class="text-gray-500 text-lg">まだ応募がありません</p>
+    </div>
+  <% else %>
+    <div class="bg-white rounded-lg shadow divide-y divide-gray-200">
+      <% @applications.each do |application| %>
+        <div class="flex items-center justify-between p-5 hover:bg-gray-50 transition-colors">
+          <div class="flex-1">
+            <p class="font-medium text-gray-800"><%= application.job_seeker.user.name %></p>
+            <p class="text-sm text-gray-500"><%= application.job.title %></p>
+            <p class="text-xs text-gray-400 mt-1">応募日: <%= application.created_at.strftime("%Y/%m/%d") %></p>
+          </div>
+          <div class="flex items-center gap-3">
+            <% match_score = application.job.company.match_score(application.job_seeker) %>
+            <span class="text-sm font-medium <%= match_score >= 70 ? 'text-green-600' : match_score >= 40 ? 'text-yellow-600' : 'text-gray-500' %>">
+              <%= match_score %>%
+            </span>
+            <span class="px-2 py-1 rounded text-xs font-medium <%= application_status_class(application) %>">
+              <%= application_status_label(application) %>
+            </span>
+            <%= link_to "メッセージ", application_messages_path(application),
+                class: "text-teal-600 hover:text-teal-800 text-sm font-medium" %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+
+  <div class="mt-6">
+    <%= link_to "← ダッシュボードに戻る", company_dashboard_path,
+        class: "text-teal-600 hover:text-teal-700 text-sm font-medium" %>
+  </div>
+</div>
