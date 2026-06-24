@@ -24,18 +24,18 @@ class MatchingService
   end
 
   def calculate
-    required_score = calculate_required_score
-    preferred_score = calculate_preferred_score
-
-    # 必須タグが1つでも欠けている場合は0を返す
+    # 必須タグが1つでも欠けている場合は0を返す。
+    # （丸めた割合ではなく件数で厳密に判定する。割合だと必須タグが多いとき
+    #   199/200=99.5%→100%に丸まり、1つ欠けても満点扱いになる不具合があった）
     required_tags = @job_seeker.required_accommodation_tags
-    if required_tags.any? && required_score < 100
-      # 必須タグが存在し、100%マッチしていない場合は0
-      return 0
+    if required_tags.any?
+      company_tag_ids = @company.accommodation_tags.pluck(:id)
+      all_required_met = required_tags.all? { |tag| company_tag_ids.include?(tag.id) }
+      return 0 unless all_required_met
     end
 
     # 重み付けスコアを計算
-    (required_score * REQUIRED_WEIGHT + preferred_score * PREFERRED_WEIGHT).round
+    (calculate_required_score * REQUIRED_WEIGHT + calculate_preferred_score * PREFERRED_WEIGHT).round
   end
 
   private

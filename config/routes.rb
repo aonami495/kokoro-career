@@ -1,5 +1,5 @@
 Rails.application.routes.draw do
-  devise_for :users
+  devise_for :users, controllers: { registrations: "users/registrations" }
 
   # 求人検索（公開）
   resources :jobs, only: [:index, :show] do
