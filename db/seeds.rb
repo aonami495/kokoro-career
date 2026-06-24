@@ -209,3 +209,120 @@ AccommodationTag::CATEGORIES.each do |category|
   count = AccommodationTag.where(category: category).count
   puts "   - #{category}: #{count} 件"
 end
+
+# ───────────────────────────────────────────────
+# デモデータ（公開デモ／開発用。すべて架空。テスト環境では作らない）
+#   冪等: メール・(企業,求人タイトル)・ユニーク制約で重複作成を防ぐので
+#         何度 db:seed を実行しても増殖しない。
+#   ログインは全アカウント共通パスワード: demo123456
+# ───────────────────────────────────────────────
+unless Rails.env.test?
+  tag = ->(name) { AccommodationTag.find_by!(name: name) }
+
+  demo_companies = [
+    {
+      email: "demo-company-aozora@example.com", name: "あおぞらソフト 採用担当",
+      company: { company_name: "あおぞらソフト株式会社", location: "東京都（フルリモート）",
+                 industry: "IT・ソフトウェア", employee_count: 80,
+                 description: "リモート中心の受託開発。やり取りはテキストを徹底しています。" },
+      accommodations: [ "フルリモート可", "指示は文書で", "チャットツール使用", "フレックスタイム", "電話対応なし", "1on1定例あり", "メンター制度" ],
+      jobs: [
+        { title: "Webアプリエンジニア（フルリモート）", job_type: "正社員", location: "フルリモート",
+          salary_min: 4_000_000, salary_max: 6_500_000, internship_available: true,
+          description: "Rails/ReactでのWeb開発。仕様・指示はすべてテキストで共有します。" },
+        { title: "QAテスター（在宅）", job_type: "契約社員", location: "フルリモート",
+          salary_min: 2_800_000, salary_max: 3_800_000, internship_available: true,
+          description: "テスト手順書に沿った動作確認。電話対応はありません。" }
+      ]
+    },
+    {
+      email: "demo-company-midori@example.com", name: "みどり製作所 採用担当",
+      company: { company_name: "みどり製作所", location: "神奈川県横浜市",
+                 industry: "製造", employee_count: 120,
+                 description: "静かな環境での軽作業が中心。ジョブコーチが常駐しています。" },
+      accommodations: [ "静かな個室あり", "騒音の少ない環境", "ジョブコーチ常駐", "段階的業務増加", "通院配慮あり", "時短勤務可（週20時間～）", "静かな個室あり" ],
+      jobs: [
+        { title: "軽作業スタッフ", job_type: "パート・アルバイト", location: "神奈川県横浜市",
+          salary_min: 2_200_000, salary_max: 2_600_000, internship_available: true,
+          description: "部品の検品・梱包。最初は簡単な作業から段階的に増やします。" }
+      ]
+    },
+    {
+      email: "demo-company-hidamari@example.com", name: "ひだまり事務サービス 採用担当",
+      company: { company_name: "ひだまり事務サービス", location: "大阪府大阪市",
+                 industry: "事務・バックオフィス", employee_count: 45,
+                 description: "通院との両立がしやすい、残業なしの事務職です。" },
+      accommodations: [ "時短勤務可（週20時間～）", "通院配慮あり", "残業なし", "定期面談（上司）", "質問しやすい雰囲気", "報連相のフォーマットあり" ],
+      jobs: [
+        { title: "一般事務（時短可）", job_type: "契約社員", location: "大阪府大阪市",
+          salary_min: 2_400_000, salary_max: 3_000_000, internship_available: false,
+          description: "書類整理・データ入力・電話取次の補助。残業はありません。" },
+        { title: "データ入力スタッフ", job_type: "パート・アルバイト", location: "大阪府大阪市",
+          salary_min: 2_000_000, salary_max: 2_400_000, internship_available: true,
+          description: "決まったフォーマットへの入力作業が中心です。" }
+      ]
+    }
+  ]
+
+  demo_companies.each do |data|
+    user = User.find_or_create_by!(email: data[:email]) do |u|
+      u.name = data[:name]
+      u.user_type = :company
+      u.password = "demo123456"
+    end
+    company = Company.find_or_create_by!(user: user) do |c|
+      data[:company].each { |k, v| c.public_send("#{k}=", v) }
+    end
+    data[:accommodations].uniq.each do |name|
+      CompanyAccommodation.find_or_create_by!(company: company, accommodation_tag: tag.call(name))
+    end
+    data[:jobs].each do |attrs|
+      Job.find_or_create_by!(company: company, title: attrs[:title]) do |j|
+        attrs.except(:title).each { |k, v| j.public_send("#{k}=", v) }
+        j.status = :published
+      end
+    end
+  end
+
+  demo_seekers = [
+    {
+      email: "demo-seeker-taro@example.com", name: "デモ太郎",
+      job_seeker: { disability_type: :developmental, disability_certificate: true,
+                    preferred_location: "フルリモート", preferred_job_type: "正社員",
+                    bio: "テキストでのやり取りが得意です。集中できる環境を希望します。" },
+      required: [ "フルリモート可", "指示は文書で" ],
+      preferred: [ "フレックスタイム", "電話対応なし" ]
+    },
+    {
+      email: "demo-seeker-hanako@example.com", name: "デモ花子",
+      job_seeker: { disability_type: :mental, disability_certificate: true,
+                    preferred_location: "大阪府", preferred_job_type: "契約社員",
+                    bio: "通院を続けながら、無理なく働ける職場を探しています。" },
+      required: [ "通院配慮あり", "時短勤務可（週20時間～）" ],
+      preferred: [ "残業なし", "静かな個室あり" ]
+    }
+  ]
+
+  demo_seekers.each do |data|
+    user = User.find_or_create_by!(email: data[:email]) do |u|
+      u.name = data[:name]
+      u.user_type = :job_seeker
+      u.password = "demo123456"
+    end
+    job_seeker = JobSeeker.find_or_create_by!(user: user) do |s|
+      data[:job_seeker].each { |k, v| s.public_send("#{k}=", v) }
+    end
+    data[:required].each do |name|
+      JobSeekerAccommodation.find_or_create_by!(job_seeker: job_seeker, accommodation_tag: tag.call(name)) do |a|
+        a.priority = :required
+      end
+    end
+    data[:preferred].each do |name|
+      JobSeekerAccommodation.find_or_create_by!(job_seeker: job_seeker, accommodation_tag: tag.call(name)) do |a|
+        a.priority = :preferred
+      end
+    end
+  end
+
+  puts "✅ デモデータ: 企業 #{Company.count} 社 / 公開求人 #{Job.published.count} 件 / 求職者 #{JobSeeker.count} 名"
+end
