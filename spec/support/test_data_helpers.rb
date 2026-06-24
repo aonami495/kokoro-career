@@ -2,6 +2,20 @@
 module TestDataHelpers
   module_function
 
+  # ブロック内で実行された実SQLクエリ数を数える（SCHEMA/トランザクション系は除外）。
+  # N+1 の回帰テストに使う。
+  def count_queries
+    count = 0
+    callback = lambda do |_name, _start, _finish, _id, payload|
+      next if payload[:name] == "SCHEMA" || payload[:name] == "TRANSACTION"
+      next if payload[:sql] =~ /\A\s*(BEGIN|COMMIT|ROLLBACK|SAVEPOINT|RELEASE)/i
+
+      count += 1
+    end
+    ActiveSupport::Notifications.subscribed(callback, "sql.active_record") { yield }
+    count
+  end
+
   def unique_email(prefix = "user")
     @email_seq ||= 0
     @email_seq += 1

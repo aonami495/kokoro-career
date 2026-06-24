@@ -83,4 +83,26 @@ RSpec.describe MatchingService do
       end
     end
   end
+
+  describe ".calculate_scores（複数企業の一括採点）" do
+    it "company.id => score のハッシュを返し、単体採点と一致する" do
+      seeker_needs(quiet_room, priority: :required)
+      company_provides(quiet_room) # この company は必須を満たす（100）
+
+      other = create_company # 必須を提供しない別企業（0）
+
+      scores = described_class.calculate_scores([ company, other ], job_seeker)
+
+      expect(scores).to eq(company.id => 100, other.id => 0)
+    end
+
+    it "重複した企業を渡しても一度だけ採点する" do
+      seeker_needs(quiet_room, priority: :required)
+      company_provides(quiet_room)
+
+      scores = described_class.calculate_scores([ company, company ], job_seeker)
+
+      expect(scores).to eq(company.id => 100)
+    end
+  end
 end

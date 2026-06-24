@@ -119,18 +119,21 @@
               </div>
 
               <!-- 提供可能な配慮タグ（最大6個表示） -->
-              <% if job.company.accommodation_tags.any? %>
+              <%# includes(company: :accommodation_tags) で事前ロード済みの配列を使う。 %>
+              <%# limit(6) は求人ごとにSQLを発行し N+1 になるため first(6) で in-memory 処理する。 %>
+              <% company_tags = job.company.accommodation_tags.to_a %>
+              <% if company_tags.any? %>
                 <div class="mb-4">
                   <p class="text-sm text-gray-500 mb-2">提供可能な配慮:</p>
                   <div class="flex flex-wrap gap-2">
-                    <% job.company.accommodation_tags.limit(6).each do |tag| %>
+                    <% company_tags.first(6).each do |tag| %>
                       <span class="bg-teal-50 text-teal-700 border border-teal-200 px-3 py-1 rounded-full text-sm">
                         ✓ <%= tag.name %>
                       </span>
                     <% end %>
-                    <% if job.company.accommodation_tags.size > 6 %>
+                    <% if company_tags.size > 6 %>
                       <span class="text-gray-500 text-sm py-1">
-                        他<%= job.company.accommodation_tags.size - 6 %>件
+                        他<%= company_tags.size - 6 %>件
                       </span>
                     <% end %>
                   </div>

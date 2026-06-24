@@ -19,9 +19,11 @@ class JobsController < ApplicationController
 
     # マッチ度計算＋ソート
     if current_user&.job_seeker? && current_user.job_seeker
-      @jobs_with_score = @jobs.map do |job|
-        { job: job, score: job.company.match_score(current_user.job_seeker) }
-      end.sort_by { |item| -item[:score] }
+      # 求職者のタグは全求人で共通なので、まとめて採点して N+1 を避ける
+      scores = MatchingService.calculate_scores(@jobs.map(&:company), current_user.job_seeker)
+      @jobs_with_score = @jobs
+                         .map { |job| { job: job, score: scores[job.company.id] } }
+                         .sort_by { |item| -item[:score] }
     else
       @jobs_with_score = @jobs.order(created_at: :desc).map do |job|
         { job: job, score: nil }
