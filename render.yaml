@@ -1,0 +1,43 @@
+# Render Blueprint（Infrastructure as Code）
+# ダッシュボードの「New +」→「Blueprint」からこのリポジトリを選ぶと、
+# Webサービスと PostgreSQL がまとめて作成される。
+# docs: https://render.com/docs/blueprint-spec
+#
+# 初回デプロイ後にやること（README/docs/deploy-render.md 参照）:
+#   - RAILS_MASTER_KEY を手動設定（config/master.key の中身）
+#   - 配慮タグの seed は DB 初回作成時に db:prepare が自動投入する（冪等）
+
+databases:
+  - name: kokoro-career-db
+    databaseName: kokoro_career_production
+    user: kokoro_career
+    plan: free
+    region: singapore
+
+services:
+  - type: web
+    name: kokoro-career
+    runtime: docker
+    plan: free
+    region: singapore
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /up
+    autoDeployTrigger: commit
+    envVars:
+      # 本番のcredentials復号に必須。値はダッシュボードで手動入力（config/master.key の中身）。
+      - key: RAILS_MASTER_KEY
+        sync: false
+      # 作成した PostgreSQL の接続URLを自動注入
+      - key: DATABASE_URL
+        fromDatabase:
+          name: kokoro-career-db
+          property: connectionString
+      # Render はアプリ自身で静的アセットを配信する必要がある（別CDN/nginxなし）
+      - key: RAILS_SERVE_STATIC_FILES
+        value: "true"
+      - key: RAILS_LOG_TO_STDOUT
+        value: "true"
+      - key: WEB_CONCURRENCY
+        value: "2"
+      - key: RAILS_MAX_THREADS
+        value: "3"
