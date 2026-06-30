@@ -14,6 +14,22 @@ module Users
   class RegistrationsController < Devise::RegistrationsController
     ALLOWED_USER_TYPES = %w[job_seeker company].freeze
 
+    # サインアップ完了直後にプロフィールレコードを1回だけ生成する。
+    # GETに副作用を持たせない（INC-2）ためここで集約し、各コントローラーの
+    # ensure_* では生成せず redirect のみに絞る。
+    def after_sign_up_path_for(resource)
+      case resource.user_type
+      when "company"
+        resource.create_company!(company_name: "未設定") unless resource.company
+        company_dashboard_path
+      when "job_seeker"
+        resource.create_job_seeker! unless resource.job_seeker
+        job_seeker_dashboard_path
+      else
+        super
+      end
+    end
+
     private
 
     def sign_up_params

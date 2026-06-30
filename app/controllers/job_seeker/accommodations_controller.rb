@@ -56,9 +56,9 @@ class JobSeeker::AccommodationsController < ApplicationController
       return
     end
 
-    # JobSeekerレコードがなければ作成
+    # プロフィール未生成（異常系）は生成せずトップへ戻す（INC-2: GETに副作用を持たせない）
     unless current_user.job_seeker
-      current_user.create_job_seeker!
+      redirect_to root_path, alert: "求職者プロフィールが見つかりません。再度サインアップしてください"
     end
   end
 

@@ -20,5 +20,35 @@ RSpec.describe "Company::Dashboards", type: :request do
       get company_dashboard_path
       expect(response).to redirect_to(root_path)
     end
+
+    # INC-2 回帰テスト: GETで Company レコードを生成しないこと
+    it "プロフィール未生成の企業ユーザーがGETしてもCompanyレコードを増やさない" do
+      user = create_user(user_type: :company)
+      sign_in user
+
+      expect { get company_dashboard_path }.not_to change(Company, :count)
+    end
+
+    it "プロフィール未生成の企業ユーザーはGETで root へリダイレクトされる" do
+      user = create_user(user_type: :company)
+      sign_in user
+
+      get company_dashboard_path
+      expect(response).to redirect_to(root_path)
+    end
+  end
+
+  # INC-2 回帰テスト: 登録時にCompanyレコードが生成されること
+  describe "POST /users（サインアップ）" do
+    it "企業として登録するとCompanyレコードが同時に生成される" do
+      expect {
+        post user_registration_path, params: {
+          user: { name: "新規企業", email: "newco@example.com", password: "password", user_type: "company" }
+        }
+      }.to change(Company, :count).by(1)
+
+      user = User.find_by(email: "newco@example.com")
+      expect(user.company).to be_present
+    end
   end
 end

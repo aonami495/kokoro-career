@@ -26,8 +26,9 @@ class Company::DashboardController < ApplicationController
       return
     end
 
+    # プロフィール未生成（異常系）の場合は生成せずトップへ戻す（INC-2: GETに副作用を持たせない）
     unless current_user.company
-      current_user.create_company!(company_name: "未設定")
+      redirect_to root_path, alert: "企業プロフィールが見つかりません。再度サインアップしてください"
     end
   end
 
