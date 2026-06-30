@@ -9,7 +9,7 @@ class CreateJobSeekerAccommodations < ActiveRecord::Migration[7.2]
     end
 
     add_index :job_seeker_accommodations,
-              [:job_seeker_id, :accommodation_tag_id],
+              [ :job_seeker_id, :accommodation_tag_id ],
               unique: true,
               name: "index_js_accommodations_on_js_and_tag"
   end

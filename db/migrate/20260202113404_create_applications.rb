@@ -10,6 +10,6 @@ class CreateApplications < ActiveRecord::Migration[7.2]
     end
 
     # ユニーク制約: 同じ求人に二重応募できないように
-    add_index :applications, [:job_seeker_id, :job_id], unique: true
+    add_index :applications, [ :job_seeker_id, :job_id ], unique: true
   end
 end

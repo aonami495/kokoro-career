@@ -10,7 +10,7 @@ class CreateReports < ActiveRecord::Migration[7.2]
       t.timestamps
     end
 
-    add_index :reports, [:target_type, :target_id]
+    add_index :reports, [ :target_type, :target_id ]
     add_index :reports, :status
   end
 end

@@ -2,46 +2,46 @@ Rails.application.routes.draw do
   devise_for :users, controllers: { registrations: "users/registrations" }
 
   # 求人検索（公開）
-  resources :jobs, only: [:index, :show] do
-    resources :applications, only: [:create]
+  resources :jobs, only: [ :index, :show ] do
+    resources :applications, only: [ :create ]
   end
 
   # 通報機能
-  resources :reports, only: [:new, :create]
+  resources :reports, only: [ :new, :create ]
 
   # 応募に紐づくメッセージと実習
   resources :applications, only: [] do
-    resources :messages, only: [:index, :create]
-    resource :internship, only: [:create, :update]
+    resources :messages, only: [ :index, :create ]
+    resource :internship, only: [ :create, :update ]
   end
 
   # 実習詳細・日報
-  resources :internships, only: [:show] do
+  resources :internships, only: [ :show ] do
     patch :update_status, on: :member
-    resources :daily_reports, only: [:create]
+    resources :daily_reports, only: [ :create ]
   end
 
   # 求職者用ルーティング
   namespace :job_seeker do
     get "dashboard", to: "dashboard#show", as: :dashboard
-    resource :accommodations, only: [:show, :new, :create, :edit, :update]
+    resource :accommodations, only: [ :show, :new, :create, :edit, :update ]
   end
 
   # 企業用ルーティング
   namespace :company do
     get "dashboard", to: "dashboard#show", as: :dashboard
-    resource :accommodations, only: [:show, :edit, :update]
-    resources :jobs, only: [:index, :new, :create, :edit, :update]
-    resources :applications, only: [:index]
+    resource :accommodations, only: [ :show, :edit, :update ]
+    resources :jobs, only: [ :index, :new, :create, :edit, :update ]
+    resources :applications, only: [ :index ]
   end
 
   # 管理者用ルーティング
   namespace :admin do
-    resource :dashboard, only: [:show]
-    resources :users, only: [:index, :destroy]
-    resources :jobs, only: [:index, :destroy]
-    resources :accommodation_tags, except: [:show]
-    resources :reports, only: [:index, :show] do
+    resource :dashboard, only: [ :show ]
+    resources :users, only: [ :index, :destroy ]
+    resources :jobs, only: [ :index, :destroy ]
+    resources :accommodation_tags, except: [ :show ]
+    resources :reports, only: [ :index, :show ] do
       patch :update_status, on: :member
     end
   end

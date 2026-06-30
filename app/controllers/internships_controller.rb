@@ -1,8 +1,8 @@
 class InternshipsController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_application, except: [:show, :update_status]
-  before_action :set_internship, only: [:update]
-  before_action :set_internship_directly, only: [:show, :update_status]
+  before_action :set_application, except: [ :show, :update_status ]
+  before_action :set_internship, only: [ :update ]
+  before_action :set_internship_directly, only: [ :show, :update_status ]
 
   # 実習詳細画面
   def show
@@ -73,9 +73,9 @@ class InternshipsController < ApplicationController
 
     new_status = params[:status]
     allowed_transitions = {
-      "accepted" => ["in_progress"],
-      "in_progress" => ["completed"],
-      "completed" => ["hired"]
+      "accepted" => [ "in_progress" ],
+      "in_progress" => [ "completed" ],
+      "completed" => [ "hired" ]
     }
 
     if allowed_transitions[@internship.status]&.include?(new_status)

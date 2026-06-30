@@ -1,5 +1,5 @@
 class Job < ApplicationRecord
-  JOB_TYPE_OPTIONS = ["正社員", "契約社員", "パート・アルバイト", "業務委託", "その他"].freeze
+  JOB_TYPE_OPTIONS = [ "正社員", "契約社員", "パート・アルバイト", "業務委託", "その他" ].freeze
 
   belongs_to :company
   has_many :applications, dependent: :destroy

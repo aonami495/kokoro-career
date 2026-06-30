@@ -23,7 +23,7 @@ class Internship < ApplicationRecord
   validate :end_date_after_start_date
 
   # Scopes
-  scope :active, -> { where(status: [:accepted, :in_progress]) }
+  scope :active, -> { where(status: [ :accepted, :in_progress ]) }
   scope :upcoming, -> { accepted.where("start_date > ?", Date.current) }
 
   # 実習期間（日数）

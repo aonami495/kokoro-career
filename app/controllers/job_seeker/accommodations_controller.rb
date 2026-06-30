@@ -1,7 +1,7 @@
 class JobSeeker::AccommodationsController < ApplicationController
   before_action :authenticate_user!
   before_action :ensure_job_seeker
-  before_action :set_tags, only: [:new, :edit]
+  before_action :set_tags, only: [ :new, :edit ]
 
   def show
     @required_tags = current_job_seeker.required_accommodation_tags

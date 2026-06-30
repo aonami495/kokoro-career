@@ -1,7 +1,7 @@
 class Company::AccommodationsController < ApplicationController
   before_action :authenticate_user!
   before_action :ensure_company
-  before_action :set_tags, only: [:edit]
+  before_action :set_tags, only: [ :edit ]
 
   def show
     @accommodations = current_company.company_accommodations.includes(:accommodation_tag)

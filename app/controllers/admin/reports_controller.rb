@@ -1,6 +1,6 @@
 module Admin
   class ReportsController < BaseController
-    before_action :set_report, only: [:show, :update_status]
+    before_action :set_report, only: [ :show, :update_status ]
 
     def index
       @reports = Report.includes(:reporter, :target).recent

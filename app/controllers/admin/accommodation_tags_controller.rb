@@ -1,6 +1,6 @@
 module Admin
   class AccommodationTagsController < BaseController
-    before_action :set_accommodation_tag, only: [:edit, :update, :destroy]
+    before_action :set_accommodation_tag, only: [ :edit, :update, :destroy ]
 
     def index
       @accommodation_tags = AccommodationTag.order(:category, :display_order)

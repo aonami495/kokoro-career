@@ -1,7 +1,7 @@
 class Company::JobsController < ApplicationController
   before_action :authenticate_user!
   before_action :ensure_company
-  before_action :set_job, only: [:edit, :update]
+  before_action :set_job, only: [ :edit, :update ]
 
   def index
     @jobs = current_company.jobs.order(created_at: :desc)

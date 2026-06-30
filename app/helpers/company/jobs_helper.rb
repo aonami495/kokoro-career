@@ -6,10 +6,10 @@ module Company::JobsHelper
   }.freeze
 
   JOB_TYPE_OPTIONS = [
-    ["正社員", "正社員"],
-    ["契約社員", "契約社員"],
-    ["パート・アルバイト", "パート・アルバイト"],
-    ["業務委託", "業務委託"]
+    [ "正社員", "正社員" ],
+    [ "契約社員", "契約社員" ],
+    [ "パート・アルバイト", "パート・アルバイト" ],
+    [ "業務委託", "業務委託" ]
   ].freeze
 
   def job_status_label(status)
@@ -35,6 +35,6 @@ module Company::JobsHelper
   end
 
   def job_status_options_for_select
-    Job.statuses.map { |k, v| [job_status_label(k), k] }
+    Job.statuses.map { |k, v| [ job_status_label(k), k ] }
   end
 end

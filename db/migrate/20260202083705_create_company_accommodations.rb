@@ -9,7 +9,7 @@ class CreateCompanyAccommodations < ActiveRecord::Migration[7.2]
     end
 
     add_index :company_accommodations,
-              [:company_id, :accommodation_tag_id],
+              [ :company_id, :accommodation_tag_id ],
               unique: true,
               name: "index_company_accommodations_on_company_and_tag"
   end
